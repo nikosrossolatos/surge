@@ -1,0 +1,15 @@
+{
+  "name": "Surge-server",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "async": "*",
+    "socket.io": "^1.3.5"
+  },
+  "devDependencies": {
+    "nodemon": "^1.3.7"
+  }
+}
