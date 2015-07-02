@@ -14,25 +14,6 @@
     <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/js/libs/surge-client.js"></script>
-    <script>
-    (function(){
-      var socket = io('http://83.212.100.253:8080');
-      $(document).on('click', '#test', function(event) {
-        event.preventDefault();
-        /* Act on the event */
-        alert("clicked, sending message");
-        socket.emit('message','ping')
-      });
-      
-      var x = surgeClient();
-      x.on('message',function(){
-        alert("callback initiated")
-      });
-
-      socket.on('message', function (message) {
-        console.log(message)
-      });
-    })()
-    </script>
+    <script src="/js/main.js"></script>
   </body>
 </html>
