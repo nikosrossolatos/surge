@@ -11,6 +11,22 @@
   <body>
     <h1>Hola bitches</h1>
     <button id="test">Emit to socket</button>
+
+    <button id="test2">Join room</button>
+
+    <button id="test3">Get rooms</button>
+    <form id="joinRoomForm">
+      <input type="text">
+      <button type="submit">join room</button>
+    </form>
+
+    <form id="leaveRoomForm">
+      <input type="text">
+      <button type="submit">leave room</button>
+    </form>
+
+    <h3>Room im in : <span id="rooms"></span></h3>
+    <h3>Socket state is : <span id="state"></span></h3>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="/dist/js/surge-client.js"></script>
     <script src="/js/main.js"></script>
