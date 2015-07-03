@@ -1,18 +1,10 @@
 var express = require('express');
 var router = express.Router();
-
+var surge = require('../public/js/libs/surge-client.js')();
 var mongoose = require( 'mongoose' );
 
- var socket = require('socket.io-client')('http://83.212.100.253:8080');
 
-socket.on('connect', function(){
-	console.log('server connected to socket')
-});
-socket.on('message', function(msg){
-	console.log('message received : ' + msg)
-});
-socket.on('disconnect', function(){
-	console.log('server disconnected to socket')
+surge.on('message', function(message) {
 });
 
 router.get('/', function(req, res) {
