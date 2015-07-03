@@ -16,7 +16,7 @@ io.on('connection', function (socket) {
 	console.log(Object.keys(socket));
 	socket.on('message', function (message) {
 		console.log('message sent :  '+message);
-		socket.emit('message','pong');
+		socket.broadcast.emit('message','pong');
 	});
 	socket.on('disconnect', function () {
 		console.log('socket disconnected for client')
