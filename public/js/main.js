@@ -6,21 +6,20 @@
 		event.preventDefault();
 		/* Act on the event */
 
-		surge.emit({event:'fuck off',message:'ping'})
+		surge.emit('channel1','fuck off','ping');
 
 	});
 	$(document).on('click', '#test2', function(event) {
   	event.preventDefault();
   	/* Act on the event */
 
-  	surge.subscribe('room1');
-  	
+  	var channel = surge.subscribe('room1');
   });
   $(document).on('submit', '#joinRoomForm', function(event) {
   	event.preventDefault();
   	/* Act on the event */
   	var room = $(this).find('input').val();
-  	surge.subscribe(room);
+  	var channel = surge.subscribe(room);
   	
   });
    $(document).on('submit', '#leaveRoomForm', function(event) {
@@ -38,7 +37,6 @@
   	
   });
 
-  
   surge.connection.watch('state',function(id, oldval, newval){
   	$('#state').html(newval);
   });
