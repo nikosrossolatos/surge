@@ -6,7 +6,7 @@
 		event.preventDefault();
 		/* Act on the event */
 
-		surge.emit('channel1','fuck off','ping');
+		surge.emit('channel1','test','ping');
 
 	});
 	$(document).on('click', '#test2', function(event) {
@@ -20,7 +20,6 @@
   	/* Act on the event */
   	var room = $(this).find('input').val();
   	var channel = surge.subscribe(room);
-  	
   });
    $(document).on('submit', '#leaveRoomForm', function(event) {
   	event.preventDefault();
@@ -42,13 +41,13 @@
   });
 
 
-	surge.on('surge-joined_room', function() {
+	surge.on('surge-joined-room', function() {
 		$('#rooms').html('');
 		for (var i = 0; i < surge.connection.rooms.length; i++) {
 			$('#rooms').append(' '+surge.connection.rooms[i])
 		};
 	});
-	surge.on('surge-left_room', function() {
+	surge.on('surge-left-room', function() {
 		$('#rooms').html('');
 		for (var i = 0; i < surge.connection.rooms.length; i++) {
 			$('#rooms').append(' '+surge.connection.rooms[i])

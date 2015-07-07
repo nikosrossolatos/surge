@@ -47,14 +47,14 @@ function Surge(options){
 
 	function subscribe(room){
 		console.log('subscribe')
-		socket.emit({event:'join_room',room:room});
+		socket.emit({name:'subscribe',data:{room:room}});
 		var channel = new Channel(room);
 		channels[room] = channel;
 		return channel;
 	};
 	function unsubscribe(room){
 		console.log('unsubscribe')
-		socket.emit({event:'leave_room',room:room});
+		socket.emit({name:'unsubscribe',data:{room:room}});
 	};
 	function disconnect(){
 		console.log('disconnect');
@@ -87,18 +87,18 @@ function Surge(options){
 			return;
 		}
 
-		data.event = arguments[arguments.length-2]
+		data.name = arguments[arguments.length-2]
 		data.data = arguments[arguments.length-1]
 		data.channel = arguments.length === 3 ? arguments[0] : undefined;
 
 		socket.emit(data);
 	};
 	function _catchEvent(response) {
-		var name = (response.type) ? response.data.name : response.name,
-		data = (response.type) ? response.data.data : response.data;
+		var name = response.name,
+		data = response.data;
 		var _events = events[name];
 		if(_events) {
-			var parsed = (typeof(data) === "object" && data !== null) ? data : JSON.parse(data);
+			var parsed = (typeof(data) === "object" && data !== null) ? data : data;
 			for(var i=0, l=_events.length; i<l; ++i) {
 				var fct = _events[i];
 				if(typeof(fct) === "function") {
@@ -112,21 +112,21 @@ function Surge(options){
 	};
 	//Private functions
 	function _surgeEvents(){
-    on('surge-joined_room',function(data){
-	  	if(!connection.inRoom(data.room)){
-	  		connection.rooms.push(data.room);
-	  		channels[data.room].state = 'connected';
+    on('surge-joined-room',function(room){
+	  	if(!connection.inRoom(room)){
+	  		connection.rooms.push(room);
+	  		channels[room].state = 'connected';
 
 	  		//TODO: introduce private channels
-	  		channels[data.room].type = 'public';
+	  		channels[room].type = 'public';
 			}
 		});
-		on('surge-left-room',function(data){
-			if(connection.inRoom(data.room)){
-				connection.rooms.splice(connection.rooms.indexOf(data.room), 1);
+		on('surge-left-room',function(room){
+			if(connection.inRoom(room)){
+				connection.rooms.splice(connection.rooms.indexOf(room), 1);
 
-				channels[data.room].state = 'connected';
-				channels[data.room].on = null;
+				channels[room].state = 'connected';
+				channels[room].on = null;
 			}
 		});
 		socket.onopen = function() {
@@ -147,7 +147,11 @@ function Surge(options){
 			}, 2000);
 		};
 		socket.onmessage = function (e) {
-			var data = e.data || {}
+			if(!e.data){
+				console.info('no data received');
+				return;
+			}
+			var data = JSON.parse(e.data);
 			if(defs.enviroment=='production'){
 				console.log('Surge : Event received : ' + e.data);
 			}
