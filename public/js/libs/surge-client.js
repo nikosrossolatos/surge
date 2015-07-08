@@ -14,12 +14,15 @@ function Surge(options){
 	var events = {};
 	var channels = {};
 	var socket    = null;
-	var reconnect = true;
+	var rconnect = true;
 	var recInterval = null;
+	var reconnecting = false;
+	var buffer = [];
 
 	var connection = new Connection();
 
 	socket = connect();
+
 	_surgeEvents();
 
 	var api = {
@@ -32,7 +35,6 @@ function Surge(options){
 		connection  : connection,
 		socket  		: socket
 	};
-
 	return api;
 
 
@@ -46,19 +48,17 @@ function Surge(options){
   };
 
 	function subscribe(room){
-		console.log('subscribe')
-		socket.emit({name:'subscribe',data:{room:room}});
+		emit('surge-subscribe',{room:room});
 		var channel = new Channel(room);
 		channels[room] = channel;
 		return channel;
 	};
 	function unsubscribe(room){
-		console.log('unsubscribe')
-		socket.emit({name:'unsubscribe',data:{room:room}});
+		emit('surge-unsubscribe',{room:room});
 	};
 	function disconnect(){
-		console.log('disconnect');
 		socket.close();
+		buffer = [];
 	};
 
 	function connect(options){
@@ -68,18 +68,15 @@ function Surge(options){
 		if(socket) {
         // Get auto-reconnect and re-setup
         connection.state = 'connecting';
-        var p = reconnect;
+        var p = rconnect;
         disconnect();
-        reconnect = p;
+        rconnect = p;
     }
 		connection.state='connecting';
 		return new SockJS(ip);
 	};
 
-	function emit(channel,event,data){
-		if(defs.enviroment=='production'){
-			console.log('Surge : Event sent : ' + JSON.stringify(data));
-		}
+	function emit(channel,name,data){
 		var data = {};
 
 		if(arguments.length<2){
@@ -87,11 +84,19 @@ function Surge(options){
 			return;
 		}
 
-		data.name = arguments[arguments.length-2]
-		data.data = arguments[arguments.length-1]
+		data.name = arguments[arguments.length-2];
+		data.message = arguments[arguments.length-1];
 		data.channel = arguments.length === 3 ? arguments[0] : undefined;
 
-		socket.emit(data);
+		if(defs.enviroment=='production'){
+			console.log('Surge : Event sent : ' + JSON.stringify(data));
+		}
+		if(socket){
+			socket.emit(data);
+		}
+		else{
+			buffer.push(JSON.stringify(data));
+		}
 	};
 	function _catchEvent(response) {
 		var name = response.name,
@@ -130,11 +135,17 @@ function Surge(options){
 			}
 		});
 		socket.onopen = function() {
-		 connection.state = 'connected';
+			connection.state = 'connected';
+			//In case of reconnection, resubscribe to rooms
+			if(reconnecting){
+				reconnecting = false;
+				reconnect();
+			}
 		};
 		socket.onclose = function() {
-			if(reconnect){
-				connection.state='attempting reconnection'
+			if(rconnect){
+				connection.state='attempting reconnection';
+				reconnecting = true;
 			}
 			else{
 				connection.state = 'disconnected';
@@ -158,35 +169,37 @@ function Surge(options){
 			_catchEvent(data);
 		};
 		socket.emit = function (data){
-			this.send(JSON.stringify(data));
+			if(connection.state==='connected'){
+				this.send(JSON.stringify(data));
+			}
+			else{
+				//enter to buffer
+				buffer.push(JSON.stringify(data));
+			}
+			
 		}
-		// socket.on('connect', function() {
-		// 	connection.state = 'connected';
-		// });
-		// socket.on('connect_error', function() {
-		// 	connection.state = 'connection error';
-		// });
-		// socket.on('reconnecting', function() {
-		// 	connection.state = 'reconnecting';
-		// });
-		// socket.on('reconnect_attempt', function() {
-		// 	connection.state = 'reconnect attempt';
-		// });
-		// socket.on('reconnect', function() {
-		// 	connection.state = 'reconnected';
-		// });
-		// socket.on('reconnect_failed', function() {
-		// 	connection.state = 'reconnection failed';
-		// });
 
+		function reconnect(){
+			//resubscribe to rooms
+			for (var i = connection.rooms.length - 1; i >= 0; i--) {
+				subscribe(connection.rooms[i]);
+			};
+			//send all events that were buffered
+			if(buffer.length>0){
+				for (var i = 0; i < buffer.length; i++) {
+					console.log('sending message from buffer : '+buffer[i]);
+					socket.send(buffer[i]);
+				};
+				buffer = [];
+			}
+		}
 	}
 	function Channel(room){
 		this.room = room;
 		this.state = 'initializing';
 		this.type = 'initializing';//public,private
 		this.unsubscribe = function(){
-			console.log('unsubscribe from room')
-			socket.emit({event:'leave_room',room:this.room});
+			emit('surge-unsubscribe',{room:this.room});
 		}
 	}
 };

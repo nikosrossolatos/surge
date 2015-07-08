@@ -13,7 +13,7 @@
   	event.preventDefault();
   	/* Act on the event */
 
-  	var channel = surge.subscribe('room1');
+  	var channel = surge.subscribe('channel1');
   });
   $(document).on('submit', '#joinRoomForm', function(event) {
   	event.preventDefault();
@@ -35,11 +35,18 @@
   	alert("You are in rooms : "+x);
   	
   });
+  $(document).on('submit', '#emitChannel', function(event) {
+    event.preventDefault();
+    /* Act on the event */
+
+    surge.emit($('#i2').val(),$('#i1').val(),$('#i3').val());
+
+  });
 
   surge.connection.watch('state',function(id, oldval, newval){
   	$('#state').html(newval);
+    return newval;
   });
-
 
 	surge.on('surge-joined-room', function() {
 		$('#rooms').html('');
