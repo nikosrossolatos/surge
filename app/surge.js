@@ -51,7 +51,11 @@ Surge.prototype.on = function(name,callback){
 
 Surge.prototype.catchEvent = function(response,socket) {
 	var name = response.name;
-	var data = response.data;
+	var data = {
+		name   		: response.name, 
+		message 	: response.data,
+		channel  	: response.channel
+	};
 	var _events = this.events[name];
 	if(_events) {
 		var parsed = (typeof(data) === "object" && data !== null) ? data : data;
@@ -65,29 +69,35 @@ Surge.prototype.catchEvent = function(response,socket) {
 			}
 		}
 	}
+	//Not a known event name
+	else{
+		this.broadcast(data.name,data.channel,data.message);
+	}
 };
 
+//
 Surge.prototype.init = function(socket){
 	var _this = this;
-	this.on('test', function(data) {
-		_this.broadcast(data);
+	this.on('surge-subscribe',function(data,socket){
+		_this.subscribe(socket,data.message.room);
 	});
-	this.on('subscribe',function(data,socket){
-		_this.subscribe(socket,data.room);
-	});
-	this.on('unsubscribe',function(data,socket){
+	this.on('surge-unsubscribe',function(data,socket){
 		_this.unsubscribe(socket,data.room);
 	});
 
 }
 
 Surge.prototype.subscribe = function(socket,room){
+	if(!room){
+		this.emit(socket,'surge-error','You need to provide a valid room');
+		return
+	}
 	if(!this.channels[room]){
 		this.channels[room] = {
-			subscribers : []
+			subscribers : {}
 		}
 	}
-	this.channels[room].subscribers.push(socket);
+	this.channels[room].subscribers[socket] = socket;
 	this.emit(socket,'surge-joined-room',room);
 }
 Surge.prototype.unsubscribe = function(socket,room){
@@ -99,12 +109,24 @@ Surge.prototype.unsubscribe = function(socket,room){
 	this.emit(socket,'surge-left-room',room);
 }
 // Broadcast to all clients
-Surge.prototype.broadcast = function(message){
+Surge.prototype.broadcast = function(name,channel,message){
 	// iterate through each client in clients object
-	for (var client in this.clients){
+	var clients = this.clients;
+	console.log('message sending : '+message);
+	if(channel){
+		console.log('at channel : '+channel);
+		clients = {};
+		if(this.channels[channel]){
+		 clients = this.channels[channel].subscribers;
+		}
+	}
+	var data = {
+		name:name,
+		data:message
+	}
+	for (var client in clients){
 	  // send the message to that client
-	  console.log('message sending : '+message);
-	  this.clients[client].write(message);
+	  clients[client].write(JSON.stringify(data));
 	}
 }
 Surge.prototype.emit = function(socket,channel,name,data){
