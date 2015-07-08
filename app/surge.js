@@ -72,7 +72,6 @@ Surge.prototype.catchEvent = function(response,socket) {
 Surge.prototype.init = function(socket){
 	var _this = this;
 	this.on('surge-subscribe',function(data,socket){
-		console.log("eh man?")
 		_this.subscribe(socket,data.message.room);
 	});
 	this.on('surge-unsubscribe',function(data,socket){
