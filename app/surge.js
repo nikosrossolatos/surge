@@ -12,7 +12,6 @@
 'use strict';
 
 module.exports = function(io){
-	// Clients list
 
 	var surge = new Surge();
 
@@ -39,7 +38,7 @@ function Surge(){
 	this.events = [];
 
 	this.init();
-}
+};
 
 Surge.prototype.on = function(name,callback){
 	if(!this.events[name]) {
@@ -47,18 +46,12 @@ Surge.prototype.on = function(name,callback){
 	}
 	// Append event
 	this.events[name].push(callback);
-}
+};
 
 Surge.prototype.catchEvent = function(response,socket) {
-	var name = response.name;
-	var data = {
-		name   		: response.name, 
-		message 	: response.data,
-		channel  	: response.channel
-	};
-	var _events = this.events[name];
+	var _events = this.events[response.name];
 	if(_events) {
-		var parsed = (typeof(data) === "object" && data !== null) ? data : data;
+		var parsed = (typeof(response) === "object" && response !== null) ? response : response;
 		for(var i=0, l=_events.length; i<l; ++i) {
 			var fct = _events[i];
 			if(typeof(fct) === "function") {
@@ -71,21 +64,21 @@ Surge.prototype.catchEvent = function(response,socket) {
 	}
 	//Not a known event name
 	else{
-		this.broadcast(data.name,data.channel,data.message);
+		this.broadcast(response.name,response.channel,response.message);
 	}
 };
 
-//
+//Default functionallity for the surge server. For now its only for subscribing / unsubscribing
 Surge.prototype.init = function(socket){
 	var _this = this;
 	this.on('surge-subscribe',function(data,socket){
+		console.log("eh man?")
 		_this.subscribe(socket,data.message.room);
 	});
 	this.on('surge-unsubscribe',function(data,socket){
-		_this.unsubscribe(socket,data.room);
+		_this.unsubscribe(socket,data.message.room);
 	});
-
-}
+};
 
 Surge.prototype.subscribe = function(socket,room){
 	if(!room){
@@ -99,7 +92,8 @@ Surge.prototype.subscribe = function(socket,room){
 	}
 	this.channels[room].subscribers[socket] = socket;
 	this.emit(socket,'surge-joined-room',room);
-}
+};
+
 Surge.prototype.unsubscribe = function(socket,room){
 	if(!this.channels[room]){
 		this.emit(socket,'surge-error','There is no such room or this user is not subscribed for this room');
@@ -107,8 +101,9 @@ Surge.prototype.unsubscribe = function(socket,room){
 	}
 	delete this.channels[room].subscribers[socket];
 	this.emit(socket,'surge-left-room',room);
-}
-// Broadcast to all clients
+};
+
+// Broadcast to all clients of a channel if provided, or to all connected sockets
 Surge.prototype.broadcast = function(name,channel,message){
 	// iterate through each client in clients object
 	var clients = this.clients;
@@ -128,7 +123,9 @@ Surge.prototype.broadcast = function(name,channel,message){
 	  // send the message to that client
 	  clients[client].write(JSON.stringify(data));
 	}
-}
+};
+
+// Emit something to a specific socket id
 Surge.prototype.emit = function(socket,channel,name,data){
 	var data = {};
 
@@ -142,7 +139,8 @@ Surge.prototype.emit = function(socket,channel,name,data){
 	//Figure out if we need to send something in a channel
 	//data.channel = arguments.length === 3 ? arguments[0] : undefined;
 	socket.write(JSON.stringify(data));
-}
+};
+
 Surge.prototype.removeClient = function(id){
 	delete this.clients[id];
-}
+};
