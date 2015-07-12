@@ -34,7 +34,8 @@ __Dont forget__ to use your server ip/domain as a host in [surge-client](https:/
 - I will be maintaining this library since i will be using it on production
 - Open source! Want to change something? Fork it change it , do a pull request or don't and keep it for yourself
 - Check roadmap for more!
-- 
+
+
 ##Roadmap
 - Authenticating connection requests using a token/secret hmac
 - Add authentication endpoint option for Authenticating users on the socket
