@@ -10,12 +10,11 @@ You can use [surge-client](https://github.com/spideynr/surge-client) without hav
 
 ##How to install
 
-Clone this repo to your machine. Run : 
+You need to have installed [nodejs](https://nodejs.org/).
+Clone this repo to your machine and run  
 ```shell
 npm install
 ```
-
-and you are done ! 
 
 ##Run
 
