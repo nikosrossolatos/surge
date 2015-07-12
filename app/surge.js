@@ -4,11 +4,6 @@
  * Module dependencies.
  */
 
-
-/* 
-*	TODO: problem with subscribe/unsubscribe. These events must be unique
-*/
-
 'use strict';
 
 module.exports = function(io){
@@ -18,6 +13,10 @@ module.exports = function(io){
 	io.on('connection', function(socket) {
 		surge.clients[socket.id] = socket;
 
+		//	Send socketid to client so that he can reference himself
+		// 	Check if valid for persistance.
+		surge.emit(socket,'open',socket.id);
+		
 		socket.on('data', function(message) {
 			console.log('message received : '+message);
 			if(message){
