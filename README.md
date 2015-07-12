@@ -1,5 +1,3 @@
-# Surge - server
-
 ![surge-logo](https://cloud.githubusercontent.com/assets/4293389/8639608/f3de84c0-28e7-11e5-8c43-6a9dbfe1771f.png)
 Surge is a lightweight "framework" for SockJS, providing an API on top of it, adding extra features. If you come from socket.io like i did, you will find it easier to adjust with SockJS using Surge.
 
