@@ -15,6 +15,10 @@ Clone this repo to your machine and run
 npm install
 ```
 
+You will also need to change your IP and port at app.js
+```js
+server.listen(8080, '0.0.0.0');
+```
 ##Run
 
 Run nodemon with : 
