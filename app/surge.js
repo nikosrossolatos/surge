@@ -12,7 +12,6 @@ module.exports = function(io){
 
 	io.on('connection', function(socket) {
 		surge.clients[socket.id] = socket;
-
 		//	Send socketid to client so that he can reference himself
 		// 	Check if valid for persistance.
 		surge.emit(socket,'open',socket.id);

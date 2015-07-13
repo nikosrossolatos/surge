@@ -16,4 +16,4 @@ var surge = require('./app/surge.js')(io);
 
 var server = http.createServer();
 io.installHandlers(server);
-server.listen(8080, '172.16.1.100');
+server.listen(8080, '172.16.1.56');
