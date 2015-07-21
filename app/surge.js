@@ -17,7 +17,6 @@ module.exports = function(io){
 		surge.emit(socket,'open',socket.id);
 		
 		socket.on('data', function(message) {
-			console.log('message received : '+message);
 			if(message){
 				surge.catchEvent(JSON.parse(message),socket);
 			}
@@ -25,7 +24,7 @@ module.exports = function(io){
 
 		socket.on('close', function() {
 			//remove client that disconnected from the socket
-			surge.removeClient(socket.id)
+			surge.removeClient(socket)
 		});
 	});
 }
@@ -62,7 +61,7 @@ Surge.prototype.catchEvent = function(response,socket) {
 	}
 	//Not a known event name
 	else{
-		this.broadcast(response.name,response.channel,response.message);
+		this.broadcast(response.channel,response.name,response.message);
 	}
 };
 
@@ -88,7 +87,10 @@ Surge.prototype.subscribe = function(socket,room){
 		}
 	}
 	this.channels[room].subscribers[socket] = socket;
-	this.emit(socket,'surge-joined-room',room);
+
+	var channel = Object.size(this.channels[room].subscribers);
+	this.emit(socket,'surge-joined-room',{room:room,subscribers:channel});
+	this.broadcast(room,'member-joined',{room:room,subscribers:channel});
 };
 
 Surge.prototype.unsubscribe = function(socket,room){
@@ -97,16 +99,16 @@ Surge.prototype.unsubscribe = function(socket,room){
 		return;
 	}
 	delete this.channels[room].subscribers[socket];
+	var channel = Object.size(this.channels[room].subscribers);
 	this.emit(socket,'surge-left-room',room);
+	this.broadcast(room,'member-left',{room:room,subscribers:channel});
 };
 
 // Broadcast to all clients of a channel if provided, or to all connected sockets
-Surge.prototype.broadcast = function(name,channel,message){
+Surge.prototype.broadcast = function(channel,name,message){
 	// iterate through each client in clients object
 	var clients = this.clients;
-	console.log('message sending : '+message);
 	if(channel){
-		console.log('at channel : '+channel);
 		clients = {};
 		if(this.channels[channel]){
 		 clients = this.channels[channel].subscribers;
@@ -123,7 +125,7 @@ Surge.prototype.broadcast = function(name,channel,message){
 };
 
 // Emit something to a specific socket id
-Surge.prototype.emit = function(socket,channel,name,data){
+Surge.prototype.emit = function(socket,channel,name,message){
 	var data = {};
 
 	if(arguments.length<3){
@@ -138,6 +140,21 @@ Surge.prototype.emit = function(socket,channel,name,data){
 	socket.write(JSON.stringify(data));
 };
 
-Surge.prototype.removeClient = function(id){
-	delete this.clients[id];
+Surge.prototype.removeClient = function(socket){
+	//remove user from all channels
+	for (var channel in this.channels){
+		this.unsubscribe(socket,channel);
+		//delete this.channels[channel].subscribers[socket];		
+	}
+
+	//remove user completely
+	delete this.clients[socket.id];
+};
+
+Object.size = function(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
 };
