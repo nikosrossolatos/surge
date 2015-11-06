@@ -8,7 +8,7 @@ var util = require('util');
 var sockjs  = require('sockjs');
 
 // Sockjs server
-var sockjs_opts = {sockjs_url: "http://cdn.sockjs.org/sockjs-0.3.min.js"};
+var sockjs_opts = { sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.1/sockjs.min.js' };
 var io = sockjs.createServer(sockjs_opts);
 
 //Initialize surge-node

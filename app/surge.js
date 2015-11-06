@@ -33,7 +33,6 @@ function Surge(){
 	this.clients = {};
 	this.channels = {};
 	this.events = [];
-
 	this.init();
 };
 
@@ -61,7 +60,10 @@ Surge.prototype.catchEvent = function(response,socket) {
 	}
 	//Not a known event name
 	else{
-		this.broadcast(response.channel,response.name,response.message);
+		if(response.broadcast){
+			this.emit(socket,response.channel,response.name,response.message);
+		}
+		this.broadcast(response.channel,socket,response.name,response.message);
 	}
 };
 
@@ -90,7 +92,7 @@ Surge.prototype.subscribe = function(socket,room){
 
 	var channel = Object.size(this.channels[room].subscribers);
 	this.emit(socket,'surge-joined-room',{room:room,subscribers:channel});
-	this.broadcast(room,'member-joined',{room:room,subscribers:channel});
+	this.broadcast(room,socket,'member-joined',{room:room,subscribers:channel});
 };
 
 Surge.prototype.unsubscribe = function(socket,room){
@@ -101,11 +103,11 @@ Surge.prototype.unsubscribe = function(socket,room){
 	delete this.channels[room].subscribers[socket];
 	var channel = Object.size(this.channels[room].subscribers);
 	this.emit(socket,'surge-left-room',room);
-	this.broadcast(room,'member-left',{room:room,subscribers:channel});
+	this.broadcast(room,socket,'member-left',{room:room,subscribers:channel});
 };
 
 // Broadcast to all clients of a channel if provided, or to all connected sockets
-Surge.prototype.broadcast = function(channel,name,message){
+Surge.prototype.broadcast = function(channel,sender,name,message){
 	// iterate through each client in clients object
 	var clients = this.clients;
 	if(channel){
@@ -120,7 +122,9 @@ Surge.prototype.broadcast = function(channel,name,message){
 	}
 	for (var client in clients){
 	  // send the message to that client
-	  clients[client].write(JSON.stringify(data));
+	  if(client!=sender){
+	  	clients[client].write(JSON.stringify(data));
+	  }
 	}
 };
 
