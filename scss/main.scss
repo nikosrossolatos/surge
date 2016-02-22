@@ -1,0 +1,38 @@
+@import 'colors';
+@import 'text';
+@import 'flexbox';
+@import 'list';
+@import 'sidebar';
+@import 'selectbox';
+@import 'graph';
+@import 'main-view';
+@import 'shame';
+
+html,body{
+	margin:0;
+	padding:0;
+	height:100%;
+	width:100%;
+	font-family:'Roboto';
+	font-size:14px;
+}
+*, *:before, *:after
+{
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.right{
+	float:right;
+}
+.left{
+	float:left;
+}
+p{
+	margin:0;
+	margin-bottom:5px;
+}
+.container{
+	padding:15px;
+}

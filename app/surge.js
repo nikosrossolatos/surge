@@ -27,6 +27,8 @@ module.exports = function(io){
 			surge.removeClient(socket)
 		});
 	});
+
+	return surge;
 }
 
 function Surge(){

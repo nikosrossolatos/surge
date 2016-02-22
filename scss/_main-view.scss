@@ -1,0 +1,21 @@
+.main-view{
+	background-color: lighten($dark-blue,10%);
+	color:lighten($dark-blue,40%);
+}
+
+.top-bar__options__title{
+	margin-right:15px;
+	margin-bottom:0;
+	
+	i{
+		border-radius:50%;
+		line-height:1;
+		border:2px solid #fff;
+		font-size:13px;
+		padding:5px;
+	}
+}
+.overview{
+	background-color:#f5f5f4;
+	height:45%;
+}

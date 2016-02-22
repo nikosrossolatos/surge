@@ -1,0 +1,17 @@
+.sidebar{
+	background-color: $dark-blue;
+	width:240px;
+	color:lighten($dark-blue,70%);
+}
+.sidebar__logo{
+	padding:15px;
+}
+.sidebar__divider{
+	background-color:lighten($dark-blue, 10%);
+	height:1px;
+}
+.sidebar__title{
+	margin:15px 15px 0 15px;;
+	color:lighten($dark-blue,35%);
+	font-weight:500;
+}

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Surge | Usage data</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/dist/main.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body class="flexbox flexbox--row flexbox--fluid">
+    
+    <section class="sidebar flexbox flexbox--column">
+    	<div class="sidebar__logo">
+    		<img src="/img/logo--white.png" alt="">
+    	</div>
+    	<div class="sidebar__divider"></div>
+    	<ul class="list flexbox--column">
+    		<li class="list__item flexbox flexbox--align-center"><span class="flexbox--fluid">Active sockets</span> <span class="list__item__bubble bgcolor--primary">255</span></li>
+    		<li class="list__item flexbox flexbox--align-center"><span class="flexbox--fluid">Active channels</span><span class="list__item__bubble bgcolor--secondary">12</span> </li>
+    	</ul>
+    	<div class="sidebar__divider"></div>
+    	<p class="sidebar__title text--uppercase">Channels</p>
+    	<ul class="list">
+    		<li>Administration</li>
+    		<li>Dashboard</li>
+    	</ul>
+    </section>
+
+    <section class="main-view flexbox flexbox--column flexbox--fluid">
+    	<div class="top-bar container">
+    		<div class="top-bar__options flexbox flexbox--align-center">
+    			
+          <p class="top-bar__options__title color--white">
+    				<i class="fa fa-bar-chart"></i>
+    				<span>Chart Settings</span>
+    			</p>
+
+          <div class="selectbox">
+            <select>
+              <option value="total">Total messages sent</option>
+            </select>
+            <i class="fa fa-caret-down"></i>
+          </div>
+
+          from
+          <div class="selectbox">
+            <select>
+              <option value="channel1">Channel 1</option>
+              <option value="channel2">Channel 2</option>
+            </select>
+            <i class="fa fa-caret-down"></i>
+          </div>
+
+          for the last
+          <div class="selectbox">
+            <select>
+              <option value="lastHour">Hour</option>
+              <option value="day">Day</option>
+              <option value="day">Month</option>
+            </select>
+            <i class="fa fa-caret-down"></i>
+          </div>
+    			
+    		</div>
+    	</div>
+    	<div class="graph flexbox flexbox--fluid container--sides">
+    		<canvas class="flexbox--fluid" id="myChart"></canvas>
+    	</div>
+    	<div class="overview container">
+    		<table>
+    			<thead>
+    				<tr>
+    					<th>Socket Id</th>
+    					<th>Headers</th>
+    					<th>Protocol</th>
+    					<th>Remote Address</th>
+    				</tr>
+    			</thead>
+    			<tbody>
+    				<tr>
+    					<td>Data 1</td>
+    					<td>Headers whatever</td>
+    					<td>Websocket</td>
+    					<td>Remote address</td>
+    				</tr>
+    			</tbody>
+    		</table>
+    	</div>
+    </section>
+    <div class="graph__tooltip"></div>
+    <script src="/dist/bundle.js"></script>
+  </body>
+</html>

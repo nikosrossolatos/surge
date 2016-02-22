@@ -1,0 +1,22 @@
+
+$blue: #43cef5;
+$dark-blue: #282d35;
+$green: #4bdaa9;
+$red: #ec705b;
+
+.color--primary{
+	color:$blue;
+}
+.bgcolor--primary{
+	background-color: $blue;
+}
+.color--secondary{
+	color:$green;
+}
+.bgcolor--secondary{
+	background-color: $green;
+}
+
+.color--white{
+	color:#fff;
+}

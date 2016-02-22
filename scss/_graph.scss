@@ -1,0 +1,35 @@
+.graph{
+  margin-bottom:-22px;
+  padding:60px 15px 0 15px;
+}
+.graph__tooltip{
+  opacity: 0;
+  position: absolute;
+  color: white;
+  padding: 3px;
+  border-radius: 3px;
+  -webkit-transition: all .1s ease;
+  transition: all .1s ease;
+  pointer-events: none;
+  -webkit-transform: translate(-50%, 0);
+  transform: translate(-50%, 0);
+
+  &.above{
+    -webkit-transform: translate(-50px, -120px);
+    transform: translate(-50px, -120px);
+  }
+  &.below{
+  }
+}
+.graph__tooltip__header{
+  margin:0;
+  font-weight:300;
+  font-size:42px;
+}
+.graph__tooltip__subheader{
+
+}
+.graph__tooltip__time{
+  color:lighten($dark-blue,40%);
+  font-weight:300;
+}
