@@ -3478,7 +3478,7 @@
 }).call(this);
 },{}],2:[function(require,module,exports){
 /*!
- * jQuery JavaScript Library v2.2.0
+ * jQuery JavaScript Library v2.2.1
  * http://jquery.com/
  *
  * Includes Sizzle.js
@@ -3488,7 +3488,7 @@
  * Released under the MIT license
  * http://jquery.org/license
  *
- * Date: 2016-01-08T20:02Z
+ * Date: 2016-02-22T19:11Z
  */
 
 (function( global, factory ) {
@@ -3544,7 +3544,7 @@ var support = {};
 
 
 var
-	version = "2.2.0",
+	version = "2.2.1",
 
 	// Define a local copy of jQuery
 	jQuery = function( selector, context ) {
@@ -7958,7 +7958,7 @@ function on( elem, types, selector, data, fn, one ) {
 	if ( fn === false ) {
 		fn = returnFalse;
 	} else if ( !fn ) {
-		return this;
+		return elem;
 	}
 
 	if ( one === 1 ) {
@@ -8607,14 +8607,14 @@ var
 	rscriptTypeMasked = /^true\/(.*)/,
 	rcleanScript = /^\s*<!(?:\[CDATA\[|--)|(?:\]\]|--)>\s*$/g;
 
+// Manipulating tables requires a tbody
 function manipulationTarget( elem, content ) {
-	if ( jQuery.nodeName( elem, "table" ) &&
-		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ) {
+	return jQuery.nodeName( elem, "table" ) &&
+		jQuery.nodeName( content.nodeType !== 11 ? content : content.firstChild, "tr" ) ?
 
-		return elem.getElementsByTagName( "tbody" )[ 0 ] || elem;
-	}
-
-	return elem;
+		elem.getElementsByTagName( "tbody" )[ 0 ] ||
+			elem.appendChild( elem.ownerDocument.createElement( "tbody" ) ) :
+		elem;
 }
 
 // Replace/restore the type attribute of script elements for safe DOM manipulation
@@ -9121,7 +9121,7 @@ var getStyles = function( elem ) {
 		// FF meanwhile throws on frame elements through "defaultView.getComputedStyle"
 		var view = elem.ownerDocument.defaultView;
 
-		if ( !view.opener ) {
+		if ( !view || !view.opener ) {
 			view = window;
 		}
 
@@ -9270,15 +9270,18 @@ function curCSS( elem, name, computed ) {
 		style = elem.style;
 
 	computed = computed || getStyles( elem );
+	ret = computed ? computed.getPropertyValue( name ) || computed[ name ] : undefined;
+
+	// Support: Opera 12.1x only
+	// Fall back to style even without computed
+	// computed is undefined for elems on document fragments
+	if ( ( ret === "" || ret === undefined ) && !jQuery.contains( elem.ownerDocument, elem ) ) {
+		ret = jQuery.style( elem, name );
+	}
 
 	// Support: IE9
 	// getPropertyValue is only needed for .css('filter') (#12537)
 	if ( computed ) {
-		ret = computed.getPropertyValue( name ) || computed[ name ];
-
-		if ( ret === "" && !jQuery.contains( elem.ownerDocument, elem ) ) {
-			ret = jQuery.style( elem, name );
-		}
 
 		// A tribute to the "awesome hack by Dean Edwards"
 		// Android Browser returns percentage for some values,
@@ -11328,7 +11331,7 @@ jQuery.extend( jQuery.event, {
 				// But now, this "simulate" function is used only for events
 				// for which stopPropagation() is noop, so there is no need for that anymore.
 				//
-				// For the compat branch though, guard for "click" and "submit"
+				// For the 1.x branch though, guard for "click" and "submit"
 				// events is still used, but was moved to jQuery.event.stopPropagation function
 				// because `originalEvent` should point to the original event for the constancy
 				// with other events and for more focused logic
@@ -13098,11 +13101,8 @@ jQuery.fn.extend( {
 			}
 
 			// Add offsetParent borders
-			// Subtract offsetParent scroll positions
-			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true ) -
-				offsetParent.scrollTop();
-			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true ) -
-				offsetParent.scrollLeft();
+			parentOffset.top += jQuery.css( offsetParent[ 0 ], "borderTopWidth", true );
+			parentOffset.left += jQuery.css( offsetParent[ 0 ], "borderLeftWidth", true );
 		}
 
 		// Subtract parent offsets and element margins
@@ -13322,9 +13322,9 @@ var _jquery2 = _interopRequireDefault(_jquery);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-(0, _jquery2.default)(function () {
-	var data = {
-		labels: ['20:00', '20:10', '20:20', '20:30', '20:40', '20:50', '21:00', '21:00', '21:10', '21:21', '21:30', '21:40', '21:50', '22:00'],
+module.exports = function LineGraph(labels, data) {
+	var graphData = {
+		labels: labels,
 		datasets: [{
 			label: 'Total Messages per hour',
 			fillColor: 'rgba(67,206,245,0.1)',
@@ -13333,7 +13333,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 			pointStrokeColor: 'transparent',
 			pointHighlightFill: '#fff',
 			pointHighlightStroke: '#282d35',
-			data: [6500, 5900, 8000, 8100, 5600, 5500, 4000, 6500, 5900, 8000, 8100, 5600, 5500, 4000]
+			data: data
 		}]
 	};
 
@@ -13350,45 +13350,119 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 	// Get context with jQuery - using jQuery's .get() method.
 	var ctx = (0, _jquery2.default)('#myChart').get(0).getContext('2d');
 	// This will get the first returned node in the jQuery collection.
-	var myLineChart = new _chart2.default(ctx).LineAlt(data, {
-		responsive: true,
-		scaleBeginAtZero: true,
-		scaleShowVerticalLines: false,
-		scaleShowHorizontalLines: false,
-		pointHitDetectionRadius: 40,
-		datasetStrokeWidth: 4,
-		pointDotRadius: 6,
-		pointDotStrokeWidth: 3,
-		customTooltips: function customTooltips(tooltip) {
-			var tooltipEl = (0, _jquery2.default)('.graph__tooltip');
+	return {
+		draw: draw
+	};
+	function draw() {
+		var myLineChart = new _chart2.default(ctx).LineAlt(graphData, {
+			responsive: true,
+			scaleBeginAtZero: true,
+			scaleShowVerticalLines: false,
+			scaleShowHorizontalLines: false,
+			pointHitDetectionRadius: 40,
+			datasetStrokeWidth: 4,
+			pointDotRadius: 6,
+			pointDotStrokeWidth: 3,
+			customTooltips: function customTooltips(tooltip) {
+				var tooltipEl = (0, _jquery2.default)('.graph__tooltip');
 
-			if (!tooltip) {
+				if (!tooltip) {
+					tooltipEl.css({
+						opacity: 0
+					});
+					return;
+				}
+
+				tooltipEl.removeClass('above below');
+				tooltipEl.addClass(tooltip.yAlign);
+				// split out the label and value and make your own tooltip here
+				var parts = tooltip.text.split(':');
+				var label = parts[0].trim() + ':' + parts[1].trim();
+				var value = parts[2].trim();
+				var innerHtml = '<h3 class="graph__tooltip__header">' + value + '</h3><p class="graph__tooltip__subhead">Messages sent</p><span class="graph__tooltip__time"><b><i class="fa fa-clock-o"></i> ' + label + '</b></span>';
+				tooltipEl.html(innerHtml);
+
 				tooltipEl.css({
-					opacity: 0
+					opacity: 1,
+					left: tooltip.chart.canvas.offsetLeft + tooltip.x + 'px',
+					top: tooltip.chart.canvas.offsetTop + tooltip.y + 'px',
+					fontSize: tooltip.fontSize,
+					fontStyle: tooltip.fontStyle
 				});
-				return;
 			}
+		});
+		//ESLint popping error :/
+		myLineChart;
+	}
+};
 
-			tooltipEl.removeClass('above below');
-			tooltipEl.addClass(tooltip.yAlign);
-			// split out the label and value and make your own tooltip here
-			var parts = tooltip.text.split(':');
-			var label = parts[0].trim() + ':' + parts[1].trim();
-			var value = parts[2].trim();
-			var innerHtml = '<h3 class="graph__tooltip__header">' + value + '</h3><p class="graph__tooltip__subhead">Messages sent</p><span class="graph__tooltip__time"><b><i class="fa fa-clock-o"></i> ' + label + '</b></span>';
-			tooltipEl.html(innerHtml);
+},{"chart.js":1,"jquery":2}],4:[function(require,module,exports){
+'use strict';
 
-			tooltipEl.css({
-				opacity: 1,
-				left: tooltip.chart.canvas.offsetLeft + tooltip.x + 'px',
-				top: tooltip.chart.canvas.offsetTop + tooltip.y + 'px',
-				fontSize: tooltip.fontSize,
-				fontStyle: tooltip.fontStyle
-			});
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+var _graph = require('./graph.js');
+
+var _graph2 = _interopRequireDefault(_graph);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+(0, _jquery2.default)(function () {
+
+	_jquery2.default.ajax({
+		url: 'api/messages',
+		type: 'get',
+		data: {},
+		success: function success(messages) {
+			var data = calculateDateRange(messages);
+			var graph = new _graph2.default(data.labels, data.data);
+			graph.draw();
 		}
 	});
-	//ESLint popping error :/
-	myLineChart;
+	_jquery2.default.ajax({
+		url: 'api/channels',
+		type: 'get',
+		data: {},
+		success: function success() {
+			// console.log(data);
+		}
+	});
+	_jquery2.default.ajax({
+		url: 'api/clients',
+		type: 'get',
+		data: {},
+		success: function success() {
+			// console.log(data);
+		}
+	});
+
+	function calculateDateRange(array) {
+		var startingDate = new Date(array[0].dateSent);
+		var currentHour = startingDate.getHours();
+		var currentMinute = Math.floor(startingDate.getMinutes() / 10) * 10;
+		var data = [0];
+		var labels = [currentHour + ':' + currentMinute];
+
+		currentMinute += 10;
+		for (var i = 0; i < array.length; i++) {
+			var messageDate = new Date(array[i].dateSent);
+
+			if (messageDate.getHours() != currentHour) {
+				currentHour = messageDate.getHours();
+				currentMinute = 10;
+				labels.push(currentHour + ':00');
+				data.push(0);
+			} else if (messageDate.getMinutes() >= currentMinute) {
+				labels.push(currentHour + ':' + currentMinute);
+				data.push(0);
+				currentMinute += 10;
+			}
+			data[data.length - 1]++;
+		}
+		return { labels: labels, data: data };
+	}
 });
 
-},{"chart.js":1,"jquery":2}]},{},[3]);
+},{"./graph.js":3,"jquery":2}]},{},[4]);

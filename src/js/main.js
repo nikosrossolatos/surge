@@ -1,71 +1,59 @@
-import Chart from 'chart.js';
 import $ from 'jquery';
+import Graph from './graph.js';
 
 $(function () {
-	var data = {
-		labels: ['20:00', '20:10', '20:20', '20:30', '20:40', '20:50', '21:00','21:00', '21:10', '21:21', '21:30', '21:40', '21:50', '22:00'],
-		datasets: [
-		{
-			label: 'Total Messages per hour',
-			fillColor: 'rgba(67,206,245,0.1)',
-			strokeColor: 'rgba(67,206,245,1)',
-			pointColor: 'rgba(67,206,245,1)',
-			pointStrokeColor: 'transparent',
-			pointHighlightFill: '#fff',
-			pointHighlightStroke: '#282d35',
-			data: [6500, 5900, 8000, 8100, 5600, 5500, 4000,6500, 5900, 8000, 8100, 5600, 5500, 4000]
-		}]
-	};
 
-	Chart.types.Line.extend({
-		name: 'LineAlt',
-		initialize: function(){
-			Chart.types.Line.prototype.initialize.apply(this, arguments);
-			var xLabels = this.scale.xLabels;
-			for (var i = 0; i < xLabels.length; i++)
-				xLabels[i] = '';	
+	$.ajax({
+		url: 'api/messages',
+		type: 'get',
+		data: {},
+		success: function (messages) {
+			var data = calculateDateRange(messages);
+			var graph = new Graph(data.labels,data.data);
+			graph.draw();
 		}
 	});
-	// Get context with jQuery - using jQuery's .get() method.
-	var ctx = $('#myChart').get(0).getContext('2d');
-	// This will get the first returned node in the jQuery collection.
-	var myLineChart = new Chart(ctx).LineAlt(data, {
-		responsive: true,
-		scaleBeginAtZero: true,
-		scaleShowVerticalLines: false,
-		scaleShowHorizontalLines: false,
-		pointHitDetectionRadius : 40,
-		datasetStrokeWidth : 4,
-		pointDotRadius : 6,
-		pointDotStrokeWidth : 3,
-		customTooltips: function (tooltip) {
-			var tooltipEl = $('.graph__tooltip');
+	$.ajax({
+		url: 'api/channels',
+		type: 'get',
+		data: {},
+		success: function () {
+			// console.log(data);
+		}
+	});
+	$.ajax({
+		url: 'api/clients',
+		type: 'get',
+		data: {},
+		success: function () {
+			// console.log(data);
+		}
+	});
 
-			if (!tooltip) {
-				tooltipEl.css({
-					opacity: 0
-				});
-				return;
+	function calculateDateRange(array){
+		var startingDate = new Date(array[0].dateSent);
+		var currentHour = startingDate.getHours();
+		var currentMinute = Math.floor(startingDate.getMinutes()/10)*10;
+		var data = [0];
+		var labels = [currentHour+':'+currentMinute];
+
+		currentMinute+=10;
+		for (var i = 0; i < array.length; i++) {
+			var messageDate = new Date(array[i].dateSent);
+
+			if(messageDate.getHours()!=currentHour){
+				currentHour = messageDate.getHours();
+				currentMinute=10;
+				labels.push(currentHour+':00');
+				data.push(0);
 			}
-
-			tooltipEl.removeClass('above below');
-			tooltipEl.addClass(tooltip.yAlign); 
-        // split out the label and value and make your own tooltip here
-        var parts = tooltip.text.split(':');
-        var label = parts[0].trim() + ':'+parts[1].trim();
-        var value = parts[2].trim();
-        var innerHtml = '<h3 class="graph__tooltip__header">' + value + '</h3><p class="graph__tooltip__subhead">Messages sent</p><span class="graph__tooltip__time"><b><i class="fa fa-clock-o"></i> ' + label + '</b></span>';
-        tooltipEl.html(innerHtml);
-        
-        tooltipEl.css({
-					opacity: 1,
-					left: tooltip.chart.canvas.offsetLeft + tooltip.x + 'px',
-					top: tooltip.chart.canvas.offsetTop + tooltip.y + 'px',
-					fontSize: tooltip.fontSize,
-					fontStyle: tooltip.fontStyle
-        });
-      }
-    });
-	//ESLint popping error :/
-	myLineChart;
+			else if(messageDate.getMinutes()>=currentMinute){
+				labels.push(currentHour+':'+currentMinute);
+				data.push(0);
+				currentMinute+=10;
+			}
+			data[data.length-1]++;
+		}
+		return {labels,data};
+	}
 });

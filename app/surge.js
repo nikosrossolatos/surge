@@ -1,10 +1,12 @@
 
-
 /**
  * Module dependencies.
  */
 
 'use strict';
+
+var mongoose = require( 'mongoose' );
+var Messages = mongoose.model('messages');
 
 module.exports = function(io){
 
@@ -109,6 +111,7 @@ Surge.prototype.unsubscribe = function(socket,room){
 Surge.prototype.broadcast = function(sender,channel,name,message,sendToSelf){
 	// iterate through each client in clients object
 	var clients = this.clients;
+	//filter clients by channel if channel exists
 	if(channel){
 		clients = {};
 		if(this.channels[channel]){
@@ -123,6 +126,18 @@ Surge.prototype.broadcast = function(sender,channel,name,message,sendToSelf){
 	  // send the message to that client
 	  if(sendToSelf || clients[client]!=sender){
 	  	clients[client].write(JSON.stringify(data));
+			var message = new Messages({
+				event: name,
+				message: message,
+				channel: channel,
+				type: 'broadcast',
+				sentFrom: sender['id'],
+				sentTo: clients[client]['id'],
+				dateSent: Date.now()
+			})
+			message.save(function(err,message){
+				if(err) return;
+			})
 	  }
 	}
 };
@@ -138,9 +153,25 @@ Surge.prototype.emit = function(socket,channel,name,message){
 
 	data.name = arguments[arguments.length-2];
 	data.data = arguments[arguments.length-1];
+	
+	//TODO: data.data.room wont crash because String type is a derivative of 
+	// Object but it might cause future bugs. Should change the emitting structure
+	
 	//Figure out if we need to send something in a channel
 	//data.channel = arguments.length === 3 ? arguments[0] : undefined;
 	socket.write(JSON.stringify(data));
+	var message = new Messages({
+		event: data.name,
+		message: JSON.stringify(data.data),
+		channel: data.data.room,
+		type: 'emit',
+		sentFrom: 'Server',
+		sentTo: socket['id'],
+		dateSent: Date.now()
+	})
+	message.save(function(err,message){
+		if(err) console.log(err);
+	})
 };
 
 Surge.prototype.removeClient = function(socket){

@@ -14,6 +14,7 @@ var logger = require('morgan');
 var bodyParser = require('body-parser');
 var express = require('express');
 var debug = require('debug')('mysite:server');
+require('./db.js');
 
 
 // Routes
@@ -31,7 +32,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
-// app.use('/api', api);
+app.use('/api', api);
 // app.use('/auth', auth);
 
 //Express server

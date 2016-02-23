@@ -8,20 +8,22 @@
     "autoprefixer": "postcss -u autoprefixer -r public/css/*",
     "lint": "eslint src/js",
     "babelify": "browserify src/js/main.js -o public/js/bundle.js -t [ babelify --presets [ es2015 ] ]",
-    "uglify": "uglifyjs public/js/bundle.js -m -c -o public/js/app.js",
+    "uglify": "uglifyjs public/js/bundle.js -m -c -o public/js/bundle.js",
     "imagemin": "imagemin src/img public/img -p",
     "build:js": "npm run lint && npm run babelify && npm run uglify",
     "build:css": "npm run scss && npm run autoprefixer",
     "build:all": "npm run build:css && npm run build:js && npm run imagemin",
     "watch:css": "node-sass --output-style compressed -o public/css src/scss -w",
     "watch:js": "watchify -v babelify src/js/main.js -o public/js/bundle.js -t [ babelify --presets [ es2015 ] ]",
-    "watch:all": "parallelshell \"npm run watch:js\" \"npm run watch:css\" \"npm run start\"" 
+    "watch:all": "parallelshell \"npm run watch:js\" \"npm run watch:css\" \"npm run start\""
   },
   "dependencies": {
     "async": "*",
     "body-parser": "^1.14.2",
     "debug": "^2.2.0",
+    "ejs": "^2.4.1",
     "express": "^4.13.4",
+    "mongoose": "^4.4.4",
     "morgan": "^1.6.1",
     "sockjs": "^0.3.15"
   },
