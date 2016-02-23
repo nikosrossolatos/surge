@@ -1,6 +1,6 @@
 ### 0.1.2
 
-Usage Stats introduced. Login at http://myserver.com to login
+Usage Stats introduced.
 
 ### 0.1.1
 
