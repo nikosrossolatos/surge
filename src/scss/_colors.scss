@@ -3,6 +3,7 @@ $blue: #43cef5;
 $dark-blue: #282d35;
 $green: #4bdaa9;
 $red: #ec705b;
+$black: #333;
 
 .color--primary{
 	color:$blue;
@@ -19,4 +20,7 @@ $red: #ec705b;
 
 .color--white{
 	color:#fff;
+}
+.color--black{
+	color:$black;
 }

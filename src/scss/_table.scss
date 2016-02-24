@@ -1,0 +1,30 @@
+.table{
+	max-width:100%;
+	width:100%;
+	border-collapse:collapse;
+}
+th{
+	text-align:left;
+}
+.table > tbody > tr > td, 
+.table > tbody > tr > th, 
+.table > tfoot > tr > td, 
+.table > tfoot > tr > th, 
+.table > thead > tr > td, 
+.table > thead > tr > th{
+	padding: 13px 20px;
+}
+
+.table > thead > tr > th {
+	padding: 20px;
+	font-size:16px;
+}
+.table > tbody > tr > th{
+	color:#595959;
+}
+.table--striped > tbody > tr:nth-of-type(2n+1){
+	background-color:#f9f9f9;
+}
+.table--striped{
+
+}

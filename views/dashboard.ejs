@@ -67,24 +67,18 @@
     	<div class="graph flexbox flexbox--fluid container--sides">
     		<canvas class="flexbox--fluid" id="myChart"></canvas>
     	</div>
-    	<div class="overview container">
-    		<table>
+    	<div class="overview">
+    		<table class="table table--striped">
     			<thead>
     				<tr>
+              <th>#</th>
     					<th>Socket Id</th>
     					<th>Headers</th>
     					<th>Protocol</th>
     					<th>Remote Address</th>
     				</tr>
     			</thead>
-    			<tbody>
-    				<tr>
-    					<td>Data 1</td>
-    					<td>Headers whatever</td>
-    					<td>Websocket</td>
-    					<td>Remote address</td>
-    				</tr>
-    			</tbody>
+    			<tbody id="js-sockets"></tbody>
     		</table>
     	</div>
     </section>

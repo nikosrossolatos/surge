@@ -25,8 +25,13 @@ $(function () {
 		url: 'api/clients',
 		type: 'get',
 		data: {},
-		success: function () {
+		success: function (data) {
 			// console.log(data);
+			var domSockets = document.getElementById('js-sockets');
+			domSockets.innerHTML = '';
+			data.forEach(function(client,index){
+				domSockets.innerHTML += '<tr><th>'+(index+1)+'</th><td>'+client.id+'</td><td>'+client.headers["user-agent"]+'</td><td>'+client.protocol+'</td><td>'+client.address.address+'</td></tr>';
+			})
 		}
 	});
 
