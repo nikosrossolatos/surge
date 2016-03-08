@@ -85,11 +85,17 @@ Surge.prototype.subscribe = function(socket,room){
 			subscribers : {}
 		}
 	}
-	this.channels[room].subscribers[socket] = socket;
+	//If socket is already subscribed , dont subscribe it again
+	if(!this.channels[room].subscribers[socket]){
+		this.channels[room].subscribers[socket] = socket;
 
-	var channel = Object.size(this.channels[room].subscribers);
-	this.emit(socket,'surge-joined-room',{room:room,subscribers:channel});
-	this.broadcast(socket,room,'member-joined',{room:room,subscribers:channel});
+		var channel = Object.size(this.channels[room].subscribers);
+		this.emit(socket,'surge-joined-room',{room:room,subscribers:channel});
+		this.broadcast(socket,room,'member-joined',{room:room,subscribers:channel});
+	}
+	else{
+		this.emit(socket,'surge-error','Socket already subscribed to room');
+	}
 };
 
 Surge.prototype.unsubscribe = function(socket,room){
@@ -97,10 +103,15 @@ Surge.prototype.unsubscribe = function(socket,room){
 		this.emit(socket,'surge-error','There is no such room or this user is not subscribed for this room');
 		return;
 	}
-	delete this.channels[room].subscribers[socket];
-	var channel = Object.size(this.channels[room].subscribers);
-	this.emit(socket,'surge-left-room',{room:room});
-	this.broadcast(socket,room,'member-left',{room:room,subscribers:channel});
+	if(this.channels[room].subscribers[socket]){
+		delete this.channels[room].subscribers[socket];
+		var channel = Object.size(this.channels[room].subscribers);
+		this.emit(socket,'surge-left-room',{room:room});
+		this.broadcast(socket,room,'member-left',{room:room,subscribers:channel});
+	}
+	else{
+		this.emit(socket,'surge-error','Socket not in room');
+	}
 };
 
 // Broadcast to all clients of a channel if provided, or to all connected sockets
